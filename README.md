@@ -54,8 +54,8 @@ Store.Common/        # Common utilities and models
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
-cd "Day 12"
+git clone https://github.com/iAhmadMahmoud/StoreManagmentSystemAPI_ITI_Task.git
+cd StoreManagmentSystemAPI_ITI_Task
 ```
 
 2. **Restore dependencies**
