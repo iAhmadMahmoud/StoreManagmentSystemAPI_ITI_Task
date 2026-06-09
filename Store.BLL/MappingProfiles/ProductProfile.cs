@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Store.Common;
 using Store.DAL;
 
 namespace Store.BLL
@@ -13,7 +14,10 @@ namespace Store.BLL
             CreateMap<Product,CreateProductDtos>().ReverseMap();
             CreateMap<CreateProductDtos, Product>();
             CreateMap<Product,EditProductDtos>();
-             
+
+            CreateMap<PaginationMetadata, PaginationMetadataDto>();
+            CreateMap(typeof(PagedResult<>), typeof(PagedResultDto<>));
+
         }
     }
 }

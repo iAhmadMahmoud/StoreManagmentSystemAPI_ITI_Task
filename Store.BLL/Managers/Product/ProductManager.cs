@@ -29,6 +29,18 @@ namespace Store.BLL
             _mapper = mapper;
         }
 
+        public async Task<GeneralResult<PagedResultDto<GetProductDtos>>> GetProductsPaginationAsync
+            (
+                PaginationParameters? paginationParameters,
+                ProductFilterParameters? filterParameters
+            )
+        {
+            var prods = await _unitOfWork.ProductRepo.GetAllPaginationAsync(paginationParameters,filterParameters);
+
+           
+            var items = _mapper.Map<PagedResultDto<GetProductDtos>>(prods);
+            return GeneralResult<PagedResultDto<GetProductDtos>>.SuccessResult(items);
+        }
         public async Task<GeneralResult<IEnumerable<GetProductDtos>>> GetProductsAsync()
         {
             var prods = await _unitOfWork.ProductRepo.GetAllWithCategoryAsync();

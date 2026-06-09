@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Store.BLL;
 using Store.Common;
 
 namespace Store.APIs
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:ApiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    //[ApiVersion("1.0",Deprecated =true)]
     public class ProductController : ControllerBase
     {
         private readonly IProductManager _productManager;
@@ -15,6 +18,17 @@ namespace Store.APIs
             _productManager = productManager;
         }
 
+        [HttpGet]
+        [Route("Pagination")]
+        public async Task<ActionResult<GeneralResult<IEnumerable<GetProductDtos>>>> GetAllPaginationAsync
+            (
+                [FromQuery] PaginationParameters paginationParameters,
+                [FromQuery] ProductFilterParameters? filterParameters
+            )
+        {
+            var prod = await _productManager.GetProductsPaginationAsync(paginationParameters, filterParameters);
+            return Ok(prod);
+        }
         [HttpGet]
         public async Task<ActionResult<GeneralResult<IEnumerable<GetProductDtos>>>> GetAllAsync()
         {

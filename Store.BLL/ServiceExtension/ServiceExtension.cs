@@ -13,6 +13,7 @@ namespace Store.BLL
             services.AddValidatorsFromAssembly(typeof(ServiceExtension).Assembly);
             services.AddAutoMapper(typeof(ServiceExtension).Assembly);
             services.AddScoped<IErrorMapper,ErrorMapper>();
+            services.AddScoped<IUploadImageManager,UploadImageManager>();
 
 
         }

@@ -10,8 +10,10 @@ namespace Store.BLL
         Task<GeneralResult<GetProductDtos>> InsertAsync(CreateProductDtos prod);
         Task<GeneralResult<EditProductDtos>> EditAsync(EditProductDtos prodVM);
         Task<GeneralResult> DeleteAsync(int id);
-        
-        
-        
+        Task<GeneralResult<PagedResultDto<GetProductDtos>>> GetProductsPaginationAsync(PaginationParameters? paginationParameters, ProductFilterParameters? filterParameters);
+
+
+
+
     }
 }

@@ -1,6 +1,10 @@
-using Store.DAL;
-using Store.BLL;
+using Asp.Versioning;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
+using Serilog;
+using Store.BLL;
+using Store.DAL;
+
 
 namespace Store.APIs
 {
@@ -8,34 +12,123 @@ namespace Store.APIs
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            builder.Services.AddBLLExtension();
-
-            builder.Services.AddDALExtension(builder.Configuration);
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.Hosting.Lifetime", Serilog.Events.LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.EntityFrameWorkCore", Serilog.Events.LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+                .CreateBootstrapLogger();
+            try
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
+                Log.Information("App Started");
+                Log.Warning("App Started");
+                Log.Error("App Started");
+
+                var builder = WebApplication.CreateBuilder(args);
+
+                // Add services to the container.
+
+                builder.Services.AddControllers();
+                builder.Services.AddBLLExtension();
+
+                builder.Services.AddDALExtension(builder.Configuration);
+
+
+                //serilog
+                builder.Host.UseSerilog((context, services, configuration) =>
+                {
+                    configuration
+                    // Load settings from appsettings.json or other configs
+                    .ReadFrom.Configuration(context.Configuration)
+                    // Allow logging configuration to use registered services (DI)
+                    .ReadFrom.Services(services)
+                    // Include contextual information in logs (like HTTP request IDs)
+                    .Enrich.FromLogContext()
+                    // Output logs to console
+                    .WriteTo.Console()
+                    .WriteTo.File(
+                         "logs/log.txt",
+                         // Create a new log file daily
+                         rollingInterval: RollingInterval.Day,
+                         // Keep logs for 30 days before automatic deletion
+                         retainedFileTimeLimit: TimeSpan.FromDays(30)
+                    );
+                });
+
+                // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+                builder.Services.AddOpenApi();
+
+                //Static File
+                var rootPath = builder.Environment.ContentRootPath;
+                var staticFilepath = Path.Combine(rootPath, "Files");
+                if (!Directory.Exists(staticFilepath))
+                {
+                    Directory.CreateDirectory(staticFilepath);
+                }
+
+                //API Versioning
+                builder.Services.AddApiVersioning(options =>
+                {
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    options.ReportApiVersions = true;
+                    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+                })
+                    .AddApiExplorer(options =>
+                    {
+                        options.GroupNameFormat = "'v'VVV";
+                        options.SubstituteApiVersionInUrl = true;
+                    });
+
+
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowAll", policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                    });
+                });
+
+                var app = builder.Build();
+
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.MapOpenApi();
+                    app.MapScalarApiReference();
+                }
+
+                app.UseCors("AllowAll");
+
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(staticFilepath),
+                    RequestPath = "/Files"
+                });
+
+
+                app.UseHttpsRedirection();
+
+                app.UseAuthorization();
+
+
+                app.MapControllers();
+
+                app.Run();
             }
+            catch (Exception ex) 
+            {
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
