@@ -4,15 +4,73 @@ A modern ASP.NET Core 9.0 REST API for managing an online store with products an
 
 ## 📋 Features
 
-- **Category Management**: Create, read, update, and delete product categories
-- **Product Management**: Manage products with details like name, description, price, and stock
+### Core Features
+- **Category Management**: Create, read, update, and delete product categories with full CRUD operations
+- **Product Management**: Comprehensive product management with details like name, description, price, stock, and image support
+- **Image Handling**: Upload, store, and delete product images with dedicated image controller
+- **Pagination & Filtering**: Advanced pagination and filtering capabilities for efficient data retrieval
+  - Support for page size, page number, and custom filtering parameters
+  - Filter products by various criteria and retrieve paginated results
+- **API Versioning**: Built-in API versioning support for backward compatibility and API evolution
+- **Comprehensive Logging**: Serilog integration for detailed application logging and monitoring
+- **Data Validation**: FluentValidation for request validation with custom validators
 - **Consistent API Responses**: Standardized response format with success/error handling
-- **Data Validation**: FluentValidation for request validation
-- **Entity Framework Core**: Database operations with migrations
-- **Repository Pattern**: Generic repository with Unit of Work pattern
-- **Dependency Injection**: Built-in service container configuration
-- **Auto Mapping**: AutoMapper for DTO transformations
-- **API Documentation**: Interactive API documentation with Scalar UI
+- **Entity Framework Core**: Database operations with code-first migrations
+- **Repository Pattern**: Generic repository with Unit of Work pattern for data access abstraction
+- **Dependency Injection**: Built-in service container configuration for loose coupling
+- **Auto Mapping**: AutoMapper for DTO transformations between models
+- **Interactive API Documentation**: Scalar UI for exploring and testing API endpoints
+- **CORS Support**: Cross-Origin Resource Sharing configured for cross-domain requests
+- **Static File Hosting**: Serve images and static files efficiently
+
+### Validation Features
+- **Request Validation**: Comprehensive validation of all incoming requests
+- **Image Upload Validation**: Specific validation rules for image uploads (file type, size, dimensions)
+- **Product Validation**: Validation of product details (price, stock, name, description)
+- **Category Validation**: Validation of category information
+- **Error Reporting**: Detailed validation error messages with field-level feedback
+
+## 🛠️ Architectural Approaches
+
+### Design Patterns
+- **Layered Architecture**: Clean separation of concerns across presentation, business logic, and data access layers
+- **Repository Pattern**: Abstract data access logic with generic repositories for each entity
+- **Unit of Work Pattern**: Manage multiple repository operations within a single transaction context
+- **Dependency Injection**: Centralized service configuration and registration in `Program.cs`
+- **Data Transfer Objects (DTOs)**: Decouple API contracts from internal models
+- **Mapper Pattern**: Use AutoMapper for consistent object-to-object transformations
+
+### SOLID Principles
+- **Single Responsibility**: Each class has one reason to change (Controllers, Managers, Repositories)
+- **Open/Closed**: Extensible architecture for adding new features without modifying existing code
+- **Liskov Substitution**: Generic repositories and interfaces enable substitutable implementations
+- **Interface Segregation**: Focused interfaces for specific operations (IRepository, IUnitOfWork, IManager)
+- **Dependency Inversion**: Depend on abstractions (interfaces) rather than concrete implementations
+
+### Data Access Strategy
+- **Generic Repository**: Base repository with common CRUD operations for all entities
+- **Entity-Specific Repositories**: Specialized repositories for Category and Product with custom queries
+- **Entity Framework Core**: ORM for database operations with LINQ queries
+- **Code-First Migrations**: Database schema versioning through C# migrations
+
+### Business Logic Organization
+- **Manager Classes**: Encapsulate business logic for Categories and Products
+- **Validation Layer**: Separate validation concerns using FluentValidation
+- **Custom Validators**: Domain-specific validators for complex validation rules
+- **Error Mapping**: Centralized error handling and transformation
+
+### API Design Approach
+- **RESTful Endpoints**: Standard REST conventions for resource operations
+- **Versioning Strategy**: API versioning for managing multiple API versions simultaneously
+- **Pagination**: Cursor-based and offset-based pagination for large datasets
+- **Filtering**: Query-based filtering with extensible filter parameters
+- **Standardized Responses**: Consistent response wrapper (GeneralResult<T>) for all endpoints
+- **Error Handling**: Centralized error handling with meaningful error messages
+
+### Logging & Monitoring
+- **Serilog Integration**: Structured logging for tracking application behavior
+- **Log Levels**: Appropriate logging at Debug, Information, Warning, and Error levels
+- **File Logging**: Logs persisted to files for audit and debugging purposes
 
 ## 🏗️ Project Structure
 
